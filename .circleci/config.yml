@@ -53,7 +53,7 @@ jobs:
             if [[ $(kubectl get namespace ${PROJECT_NAME}-${PR_NUMBER}-ns) ]]; then
                 kubectl delete namespace ${PROJECT_NAME}-${PR_NUMBER}-ns
             fi
-  staging_deploy:
+  stage_deploy:
     docker:
       - image: google/cloud-sdk
     environment:
@@ -120,7 +120,7 @@ workflows:
             branches:
               only:
                 - master
-      - staging_deploy:
+      - stage_deploy:
           filters:
             branches:
               only: 
