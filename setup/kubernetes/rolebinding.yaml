@@ -1,0 +1,18 @@
+# Author: Anil Saravade
+# Copyright: Copyright (©) 2020. SwapStyle. All rights reserved.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: webhook-rolebinding
+  namespace: webhook-ns
+  labels:
+    app: webhook
+subjects:
+- kind: ServiceAccount
+  name: webhook-sa
+  namespace: webhook-ns
+roleRef:
+  kind: Role
+  name: webhook-role
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,17 @@
+# Author: Anil Saravade
+# Copyright: Copyright (©) 2020. SwapStyle. All rights reserved.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: webhook-svc
+  namespace: webhook-ns
+  labels:
+    app: webhook
+spec:
+  selector:
+    app: webhook
+  ports:
+    - port: 5000
+      targetPort: 5000
+  type: NodePort

@@ -1,0 +1,9 @@
+# Author: Anil Saravade
+# Copyright: Copyright (©) 2020. SwapStyle. All rights reserved.
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: webhook-ns
+  labels:
+    app: webhook

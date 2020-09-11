@@ -1,0 +1,62 @@
+# Author: Anil Saravade
+# Copyright: Copyright (©) 2020. SwapStyle. All rights reserved.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhook-deployment
+  namespace: webhook-ns
+  labels:
+    app: webhook
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: webhook
+  template:
+    metadata:
+      labels:
+        app: webhook
+    spec:
+      serviceAccountName: webhook-sa
+      containers:
+      - name: webhook-deployment
+        image: gcr.io/[PROJECT_ID]/[IMAGE_NAME]:[TAG_NAME]
+        ports:
+        - containerPort: 5000
+        command: ["python3", "hook.py"]
+        readinessProbe:
+          httpGet:
+            path: /webhook
+            port: 5000
+          timeoutSeconds: 4
+          successThreshold: 3
+          failureThreshold: 2
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        env:
+          - name: WEBHOOK_VERIFY_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: webhook-secret
+                key: WEBHOOK_VERIFY_TOKEN
+          - name: CIRCLE_API_USER_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: webhook-secret
+                key: CIRCLE_API_USER_TOKEN
+          - name: CIRCLE_URL
+            valueFrom:
+              secretKeyRef:
+                name: webhook-secret
+                key: CIRCLE_URL
+          - name: CIRCLE_DEPLOY_JOB
+            valueFrom:
+              secretKeyRef:
+                name: webhook-secret
+                key: CIRCLE_DEPLOY_JOB
+          - name: CIRCLE_REMOVE_JOB
+            valueFrom:
+              secretKeyRef:
+                name: webhook-secret
+                key: CIRCLE_REMOVE_JOB

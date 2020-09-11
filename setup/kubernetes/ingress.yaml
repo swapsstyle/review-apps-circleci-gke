@@ -1,0 +1,22 @@
+# Author: Anil Saravade
+# Copyright: Copyright (©) 2020. SwapStyle. All rights reserved.
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: webhook-ingress
+  namespace: webhook-ns
+  labels:
+    app: webhook
+  annotations:
+    networking.gke.io/managed-certificates: webhook-cert
+    kubernetes.io/ingress.global-static-ip-name: webhook-ext-ip
+spec:
+  rules:
+  - host: webhook.[DNS_NAME]
+    http:
+      paths:
+        - path: /webhook/*
+          backend:
+            serviceName: webhook-svc
+            servicePort: 5000
