@@ -16,7 +16,7 @@ spec:
   - host: webhook.[DNS_NAME]
     http:
       paths:
-        - path: /webhook/*
+        - path: /*
           backend:
             serviceName: webhook-svc
             servicePort: 5000
