@@ -32,16 +32,18 @@ def temp_token():
     return temp_token.decode('utf-8')
 
 def pr_action(request_json):
-    pr_action_list = ['opened', 'reopened', 'synchronize']
-    pr_action = request_json['action']
-    pr_number = request_json['number']
-    pr_branch = request_json['pull_request']['head']['ref']
-    if pr_action in pr_action_list:
-        if deploy_review(pr_number, pr_branch):
-            return True
-    elif pr_action == 'closed':
-        if remove_review(pr_number, pr_branch):
-            return True
+
+    if 'action' in request_json and 'number' in request_json:
+        pr_action_list = ['opened', 'reopened', 'synchronize']
+        pr_action = request_json['action']
+        pr_number = request_json['number']
+        pr_branch = request_json['pull_request']['head']['ref']
+        if pr_action in pr_action_list:
+            if deploy_review(pr_number, pr_branch):
+                return True
+        elif pr_action == 'closed':
+            if remove_review(pr_number, pr_branch):
+                return True
 
 def deploy_review(pr_number, pr_branch):
     headers = {
@@ -96,6 +98,9 @@ def webhook():
             return jsonify({'status':'not authorised'}), 401
         else:
             if pr_action(request_json):
+                response_json = {'status': 'success'}
+                return jsonify(response_json), 200,
+            elif request.headers.get('X-GitHub-Event') == 'ping':
                 response_json = {'status': 'success'}
                 return jsonify(response_json), 200,
             else:
