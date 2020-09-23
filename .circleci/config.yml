@@ -20,14 +20,13 @@ jobs:
       - run: 
           name: Review docker build and push
           command: |
-            docker build -t gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1} .
+            docker build -t gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1} -f .
             gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://gcr.io
             docker push gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1}
       - run: 
           name: Deploy review application to Kubernetes
           command: |
-            ls -la
-            envsubst < ${HOME}/sample-app/kubernetes/review-config.yml > ${HOME}/patched_review_config.yml
+            envsubst < sample-app/kubernetes/review-config.yml > ${HOME}/patched_review_config.yml
             kubectl apply -f ${HOME}/patched_review_config.yml
             kubectl rollout status deployment/${PROJECT_NAME}-${PR_NUMBER}-deployment -n ${PROJECT_NAME}-${PR_NUMBER}-ns
             external_ip=""; while [ -z $external_ip ]; do echo "Waiting for end point..."; external_ip=$(kubectl get ingress ${PROJECT_NAME}-${PR_NUMBER}-ingress -n ${PROJECT_NAME}-${PR_NUMBER}-ns --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}"); [ -z "$external_ip" ] && sleep 10; done; echo "End point ready-" && echo $external_ip; export endpoint=$external_ip
@@ -74,7 +73,7 @@ jobs:
       - run: 
           name: Staging docker build and push
           command: |
-            docker build -t gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1} .
+            docker build -t gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1} -f ${HOME}/sample-app/Dockerfile .
             gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://gcr.io
             docker push gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1}
       - run: 
@@ -103,7 +102,7 @@ jobs:
       - run: 
           name: Production docker build and push
           command: |
-            docker build -t gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1} .
+            docker build -t gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1} -f ${HOME}/sample-app/Dockerfile .
             gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://gcr.io
             docker push gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1}
       - run: 
