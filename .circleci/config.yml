@@ -1,5 +1,23 @@
 version: 2
 jobs:
+  sample_deploy_job:
+    docker:
+      - image: google/cloud-sdk
+    steps:
+      - checkout
+      - run:
+          name: sample deploy job
+          command: |
+            echo "sample deploy job"
+   sample_remove_job:
+    docker:
+      - image: google/cloud-sdk
+    steps:
+      - checkout
+      - run:
+          name: sample remove job
+          command: |
+            echo "sample remove job"
   review_deploy:
     docker:
       - image: google/cloud-sdk
