@@ -26,6 +26,7 @@ jobs:
       - run: 
           name: Deploy review application to Kubernetes
           command: |
+            ls -la
             envsubst < ${HOME}/sample-app/kubernetes/review-config.yml > ${HOME}/patched_review_config.yml
             kubectl apply -f ${HOME}/patched_review_config.yml
             kubectl rollout status deployment/${PROJECT_NAME}-${PR_NUMBER}-deployment -n ${PROJECT_NAME}-${PR_NUMBER}-ns
