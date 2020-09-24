@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-__author__ = "Anil Saravade"
-__copyright__ = "Copyright (©) 2020. SwapStyle. All rights reserved."
-
 ## requirements.txt
 # Flask==0.10.1
 # itsdangerous==0.24
@@ -22,7 +17,6 @@ import hashlib
 
 WEBHOOK_VERIFY_TOKEN = os.getenv('WEBHOOK_VERIFY_TOKEN')
 CIRCLE_API_USER_TOKEN = os.getenv('CIRCLE_API_USER_TOKEN')
-CIRCLE_URL = os.getenv('CIRCLE_URL')
 CIRCLE_DEPLOY_JOB = os.getenv('CIRCLE_DEPLOY_JOB')
 CIRCLE_REMOVE_JOB = os.getenv('CIRCLE_REMOVE_JOB')
 
@@ -38,14 +32,15 @@ def pr_action(request_json):
         pr_action = request_json['action']
         pr_number = request_json['number']
         pr_branch = request_json['pull_request']['head']['ref']
+        repo_full_name = request_json['pull_request']['head']['repo']['full_name']
         if pr_action in pr_action_list:
-            if deploy_review(pr_number, pr_branch):
+            if deploy_review(pr_number, pr_branch, repo_full_name):
                 return True
         elif pr_action == 'closed':
-            if remove_review(pr_number, pr_branch):
+            if remove_review(pr_number, pr_branch, repo_full_name):
                 return True
 
-def deploy_review(pr_number, pr_branch):
+def deploy_review(pr_number, pr_branch, repo_full_name):
     headers = {
         'Content-Type': 'application/json',
         'Circle-Token': '{}'.format(CIRCLE_API_USER_TOKEN)
@@ -57,13 +52,14 @@ def deploy_review(pr_number, pr_branch):
             "PR_BRANCH": pr_branch
         }
     }
-    url = '{}/{}'.format(CIRCLE_URL,pr_branch)
-    response = requests.post(url, json=payload, headers=headers)
+    url = "https://circleci.com/api/v1.1/project/github"
+    request_url = '{}/{}/tree/{}'.format(url,repo_full_name,pr_branch)
+    response = requests.post(request_url, json=payload, headers=headers)
     if response.status_code in [200, 201]:
         return True
 
 
-def remove_review(pr_number, pr_branch):
+def remove_review(pr_number, pr_branch, repo_full_name):
     headers = {
         'Content-Type': 'application/json',
         'Circle-Token': '{}'.format(CIRCLE_API_USER_TOKEN)
@@ -75,8 +71,9 @@ def remove_review(pr_number, pr_branch):
             "PR_BRANCH": pr_branch
         }
     }
-    url = '{}/{}'.format(CIRCLE_URL,pr_branch)
-    response = requests.post(url, json=payload, headers=headers)
+    url = "https://circleci.com/api/v1.1/project/github"
+    request_url = '{}/{}/tree/{}'.format(url,repo_full_name,pr_branch)
+    response = requests.post(request_url, json=payload, headers=headers)
     if response.status_code in [200, 201]:
         return True
 
