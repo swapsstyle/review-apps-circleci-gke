@@ -1,3 +1,6 @@
+# Author: Anil Saravade
+# Copyright: Copyright (©) 2020. SwapStyle. All rights reserved.
+
 ## requirements.txt
 # Flask==0.10.1
 # itsdangerous==0.24
