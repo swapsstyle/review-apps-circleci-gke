@@ -45,11 +45,6 @@ spec:
               secretKeyRef:
                 name: webhook-secret
                 key: CIRCLE_API_USER_TOKEN
-          - name: CIRCLE_URL
-            valueFrom:
-              secretKeyRef:
-                name: webhook-secret
-                key: CIRCLE_URL
           - name: CIRCLE_DEPLOY_JOB
             valueFrom:
               secretKeyRef:
