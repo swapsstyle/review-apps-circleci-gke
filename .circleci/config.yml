@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  review_deploy:
+  test1:
     docker:
       - image: google/cloud-sdk
     environment:
@@ -8,120 +8,24 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Setup Google Cloud SDK
+          name: test1
           command: |
-            apt-get install -qq -y gettext
-            echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
-            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
-            gcloud --quiet container clusters get-credentials ${GOOGLE_CLUSTER_NAME} --zone ${GOOGLE_COMPUTE_ZONE}
+            echo "test1"
       - setup_remote_docker
-      - run: 
-          name: Review docker build and push
-          command: |
-            docker build -t gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1} -f ./sample-app/Dockerfile .
-            gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://gcr.io
-            docker push gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1}
-      - run: 
-          name: Deploy review application to Kubernetes
-          command: |
-            envsubst < ${HOME}/sample-app/kubernetes/review-config.yml > ${HOME}/patched_review_config.yml
-            kubectl apply -f ${HOME}/patched_review_config.yml
-            kubectl rollout status deployment/${PROJECT_NAME}-${PR_NUMBER}-deployment -n ${PROJECT_NAME}-${PR_NUMBER}-ns
-            external_ip=""; while [ -z $external_ip ]; do echo "Waiting for end point..."; external_ip=$(kubectl get ingress ${PROJECT_NAME}-${PR_NUMBER}-ingress -n ${PROJECT_NAME}-${PR_NUMBER}-ns --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}"); [ -z "$external_ip" ] && sleep 10; done; echo "End point ready-" && echo $external_ip; export endpoint=$external_ip
-  review_remove:
+  test2:
     docker:
       - image: google/cloud-sdk
     environment:
       - PROJECT_NAME: "nginx-review"
     steps:
       - checkout
-      - run: 
-          name: Setup Google Cloud SDK
+      - run:
+          name: test2
           command: |
-            apt-get install -qq -y gettext
-            echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
-            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
-            gcloud --quiet container clusters get-credentials ${GOOGLE_CLUSTER_NAME} --zone ${GOOGLE_COMPUTE_ZONE}
+            echo "test2"
       - setup_remote_docker
-      - run: 
-          name: Remove review application from Kubernetes
-          command: |
-            if [[ $(kubectl get namespace ${PROJECT_NAME}-${PR_NUMBER}-ns) ]]; then
-                kubectl delete namespace ${PROJECT_NAME}-${PR_NUMBER}-ns
-            fi
-  stage_deploy:
-    docker:
-      - image: google/cloud-sdk
-    environment:
-      - PROJECT_NAME: "nginx-stage"
-    steps:
-      - checkout
-      - run: 
-          name: Setup Google Cloud SDK
-          command: |
-            apt-get install -qq -y gettext
-            echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
-            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
-            gcloud --quiet container clusters get-credentials ${GOOGLE_CLUSTER_NAME} --zone ${GOOGLE_COMPUTE_ZONE}
-      - setup_remote_docker
-      - run: 
-          name: Staging docker build and push
-          command: |
-            docker build -t gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1} -f ./sample-app/Dockerfile .
-            gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://gcr.io
-            docker push gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1}
-      - run: 
-          name: Deploy staging application to Kubernetes
-          command: |
-            envsubst < ${HOME}/sample-app/kubernetes/stage-config.yml > ${HOME}/patched-stage-config.yml
-            kubectl apply -f ${HOME}/patched-stage-config.yml
-            kubectl rollout status deployment/${PROJECT_NAME}-deployment -n ${PROJECT_NAME}-ns
-  prod_deploy:
-    docker:
-      - image: google/cloud-sdk
-    environment:
-      - PROJECT_NAME: "nginx-prod"
-    steps:
-      - checkout
-      - run: 
-          name: Setup Google Cloud SDK
-          command: |
-            apt-get install -qq -y gettext
-            echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
-            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
-            gcloud --quiet container clusters get-credentials ${GOOGLE_CLUSTER_NAME} --zone ${GOOGLE_COMPUTE_ZONE}
-      - setup_remote_docker
-      - run: 
-          name: Production docker build and push
-          command: |
-            docker build -t gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1} -f ./sample-app/Dockerfile .
-            gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://gcr.io
-            docker push gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1}
-      - run: 
-          name: Deploy production application to Kubernetes
-          command: |
-            envsubst < ${HOME}/sample-app/kubernetes/prod-config.yml > ${HOME}/patched-prod-config.yml
-            kubectl apply -f ${HOME}/patched-prod-config.yml
-            kubectl rollout status deployment/${PROJECT_NAME}-deployment -n ${PROJECT_NAME}-ns
 workflows:
   version: 2
   build_test_deploy:
     jobs:
-      - prod_deploy:
-          filters:
-            branches:
-              only:
-                - master
-      - stage_deploy:
-          filters:
-            branches:
-              only: 
-                - stage
+      - test1
