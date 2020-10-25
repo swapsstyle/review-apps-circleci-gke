@@ -17,10 +17,10 @@ gcp-build-deploy: &gcp-build-deploy
     - run: 
         name: Review docker build and push
         command: |
-          cd /sample-app
-          docker build -t gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1} .
-          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://gcr.io
-          docker push gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1}
+          ls -la
+          # docker build -t gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1} .
+          # gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://gcr.io
+          # docker push gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1}
     - run: 
         name: Deploy application to Kubernetes
         command: |
