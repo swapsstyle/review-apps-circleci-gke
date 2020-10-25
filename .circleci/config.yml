@@ -24,7 +24,7 @@ gcp-build-deploy: &gcp-build-deploy
     - run: 
         name: Deploy application to Kubernetes
         command: |
-          envsubst < /sample-app/kubernetes/${FILE_NAME} > ${HOME}/patched-config.yml
+          envsubst < sample-app/kubernetes/${FILE_NAME} > ${HOME}/patched-config.yml
           kubectl apply -f ${HOME}/patched-config.yml
           if [[ ${PROJECT_NAME} == "nginx-review" ]]; then
             kubectl rollout status deployment/${PROJECT_NAME}-${PR_NUMBER}-deployment -n ${PROJECT_NAME}-${PR_NUMBER}-ns
