@@ -55,7 +55,7 @@ spec:
   rules:
   - http:
       paths:
-      - path: /staging
+      - path: /stage
         backend:
           serviceName: ${PROJECT_NAME}-svc
           servicePort: 80
