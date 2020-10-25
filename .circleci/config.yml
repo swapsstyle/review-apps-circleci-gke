@@ -1,7 +1,7 @@
 version: 2
 gcp-build-deploy: &gcp-build-deploy
   docker:
-    - image: google/cloud-sdk:311.0.0-slim
+    - image: google/cloud-sdk
   steps:
     - checkout
     - run:
@@ -49,7 +49,7 @@ jobs:
       - FILE_NAME: "prod-config.yml"
   review_remove:
     docker:
-      - image: google/cloud-sdk:311.0.0-slim
+      - image: google/cloud-sdk
     environment:
       - PROJECT_NAME: "nginx-review"
     steps:
