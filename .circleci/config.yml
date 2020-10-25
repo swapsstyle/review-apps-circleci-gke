@@ -17,14 +17,14 @@ gcp-build-deploy: &gcp-build-deploy
     - run: 
         name: Review docker build and push
         command: |
-          cd ${HOME}/sample-app/Dockerfile
+          cd ${HOME}/review-apps-circleci-gke/sample-app/Dockerfile
           docker build -t gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1} .
           gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://gcr.io
           docker push gcr.io/${GOOGLE_PROJECT_ID}/${PROJECT_NAME}-img:${CIRCLE_SHA1}
     - run: 
         name: Deploy application to Kubernetes
         command: |
-          envsubst < ${HOME}/sample-app/kubernetes/${FILE_NAME}.yml > ${HOME}/patched-config.yml
+          envsubst < ${HOME}/review-apps-circleci-gke/sample-app/kubernetes/${FILE_NAME}.yml > ${HOME}/patched-config.yml
           kubectl apply -f ${HOME}/patched-config.yml
           if [[ ${PROJECT_NAME} == "nginx-review" ]]; then
             kubectl rollout status deployment/${PROJECT_NAME}-${PR_NUMBER}-deployment -n ${PROJECT_NAME}-${PR_NUMBER}-ns
