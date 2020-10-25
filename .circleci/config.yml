@@ -12,7 +12,7 @@ gcp-build-deploy: &gcp-build-deploy
           gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
           gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
           gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_REGION}-a
-          gcloud --quiet container clusters get-credentials ${GOOGLE_CLUSTER_NAME} --region ${GOOGLE_COMPUTE_REGION}
+          gcloud --quiet container clusters get-credentials ${GOOGLE_CLUSTER_NAME} --zone ${GOOGLE_COMPUTE_REGION}-c
     - setup_remote_docker
     - run: 
         name: Review docker build and push
@@ -61,7 +61,7 @@ jobs:
             gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
             gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
             gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_REGION}-a
-            gcloud --quiet container clusters get-credentials ${GOOGLE_CLUSTER_NAME} --region ${GOOGLE_COMPUTE_REGION}
+            gcloud --quiet container clusters get-credentials ${GOOGLE_CLUSTER_NAME} --zone ${GOOGLE_COMPUTE_REGION}-c
       - setup_remote_docker
       - run: 
           name: Remove review application from Kubernetes
